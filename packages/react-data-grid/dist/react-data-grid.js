@@ -9918,6 +9918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  mixins: [ColumnMetricsMixin, DOMMetrics.MetricsComputatorMixin, KeyboardHandlerMixin],
 
 	  propTypes: {
+	    showFilterRow: React.PropTypes.bool,
 	    rowHeight: React.PropTypes.number.isRequired,
 	    headerRowHeight: React.PropTypes.number,
 	    minHeight: React.PropTypes.number.isRequired,
@@ -9977,6 +9978,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  getDefaultProps: function getDefaultProps() {
 	    return {
+	      showFilterRow: true,
 	      enableCellSelect: false,
 	      tabIndex: -1,
 	      rowHeight: 35,
@@ -9997,7 +9999,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  getInitialState: function getInitialState() {
 	    var columnMetrics = this.createColumnMetrics();
-	    var initialState = { columnMetrics: columnMetrics, selectedRows: [], copied: null, expandedRows: [], canFilter: false, columnFilters: {}, sortDirection: null, sortColumn: null, dragged: null, scrollOffset: 0, lastRowIdxUiSelected: -1 };
+	    var initialState = { columnMetrics: columnMetrics, selectedRows: [], copied: null, expandedRows: [], canFilter: this.props.showFilterRow, columnFilters: {}, sortDirection: null, sortColumn: null, dragged: null, scrollOffset: 0, lastRowIdxUiSelected: -1 };
 	    if (this.props.enableCellSelect) {
 	      initialState.selected = { rowIdx: 0, idx: 0 };
 	    } else {
