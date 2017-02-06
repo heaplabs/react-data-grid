@@ -13813,7 +13813,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  mixins: [ColumnMetricsMixin, DOMMetrics.MetricsComputatorMixin, KeyboardHandlerMixin],
 
 	  propTypes: {
-	    key: React.PropTypes.string,
+	    dataGridName: React.PropTypes.string.isRequired,
 	    showFilterRow: React.PropTypes.bool,
 	    rowHeight: React.PropTypes.number.isRequired,
 	    headerRowHeight: React.PropTypes.number,
@@ -14613,7 +14613,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var cols = columns.slice(0);
 	    var unshiftedCols = {};
 	    if (this.props.rowActionsCell || props.enableRowSelect && !this.props.rowSelection || props.rowSelection && props.rowSelection.showCheckbox !== false) {
-	      var selectAllCheckboxId = 'select-all-checkbox-' + this.props.key;
+	      var selectAllCheckboxId = 'select-all-checkbox-' + this.props.dataGridName;
 
 	      var headerRenderer = props.enableRowSelect === 'single' ? null : React.createElement(
 	        'div',
