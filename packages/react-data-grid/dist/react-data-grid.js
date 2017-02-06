@@ -9918,6 +9918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  mixins: [ColumnMetricsMixin, DOMMetrics.MetricsComputatorMixin, KeyboardHandlerMixin],
 
 	  propTypes: {
+	    key: React.PropTypes.string,
 	    showFilterRow: React.PropTypes.bool,
 	    rowHeight: React.PropTypes.number.isRequired,
 	    headerRowHeight: React.PropTypes.number,
@@ -10717,11 +10718,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var cols = columns.slice(0);
 	    var unshiftedCols = {};
 	    if (this.props.rowActionsCell || props.enableRowSelect && !this.props.rowSelection || props.rowSelection && props.rowSelection.showCheckbox !== false) {
+	      var selectAllCheckboxId = 'select-all-checkbox-' + this.props.key;
+
 	      var headerRenderer = props.enableRowSelect === 'single' ? null : React.createElement(
 	        'div',
 	        { className: 'react-grid-checkbox-container' },
-	        React.createElement('input', { className: 'react-grid-checkbox', type: 'checkbox', name: 'select-all-checkbox', id: 'select-all-checkbox', onChange: this.handleCheckboxChange }),
-	        React.createElement('label', { htmlFor: 'select-all-checkbox', className: 'react-grid-checkbox-label' })
+	        React.createElement('input', { className: 'react-grid-checkbox', type: 'checkbox', name: selectAllCheckboxId, id: selectAllCheckboxId, onChange: this.handleCheckboxChange }),
+	        React.createElement('label', { htmlFor: selectAllCheckboxId, className: 'react-grid-checkbox-label' })
 	      );
 	      var Formatter = this.props.rowActionsCell ? this.props.rowActionsCell : CheckboxEditor;
 	      var selectColumn = {
