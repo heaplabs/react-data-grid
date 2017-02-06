@@ -50,6 +50,7 @@ const ReactDataGrid = React.createClass({
   ],
 
   propTypes: {
+    key: React.PropTypes.string,
     showFilterRow: React.PropTypes.bool,
     rowHeight: React.PropTypes.number.isRequired,
     headerRowHeight: React.PropTypes.number,
@@ -827,10 +828,12 @@ const ReactDataGrid = React.createClass({
     let cols = columns.slice(0);
     let unshiftedCols = {};
     if (this.props.rowActionsCell || (props.enableRowSelect && !this.props.rowSelection) || (props.rowSelection && props.rowSelection.showCheckbox !== false)) {
+      const selectAllCheckboxId = 'select-all-checkbox-' + this.props.key;
+      
       let headerRenderer = props.enableRowSelect === 'single' ? null :
       <div className="react-grid-checkbox-container">
-        <input className="react-grid-checkbox" type="checkbox" name="select-all-checkbox" id="select-all-checkbox" onChange={this.handleCheckboxChange} />
-        <label htmlFor="select-all-checkbox" className="react-grid-checkbox-label"></label>
+        <input className="react-grid-checkbox" type="checkbox" name={selectAllCheckboxId} id={selectAllCheckboxId} onChange={this.handleCheckboxChange} />
+        <label htmlFor={selectAllCheckboxId} className="react-grid-checkbox-label"></label>
       </div>;
       let Formatter = this.props.rowActionsCell ? this.props.rowActionsCell : CheckboxEditor;
       let selectColumn = {
