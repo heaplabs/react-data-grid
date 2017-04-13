@@ -83,7 +83,7 @@ export default class GridRunner {
   }
 
   getDisplayInfo() {
-    const { displayStart, colDisplayStart, displayEnd, colDisplayEnd } = this.grid.refs.reactDataGrid.refs.base.refs.viewport.state;
+    const { displayStart, colDisplayStart, displayEnd, colDisplayEnd } = this.grid.reactDataGrid.base.viewport.state;
 
     return { displayStart, colDisplayStart, displayEnd, colDisplayEnd };
   }
@@ -219,7 +219,7 @@ export default class GridRunner {
     return this;
   }
   hasCopied({cellIdx, rowIdx}) {
-    let baseGrid = this.grid.refs.reactDataGrid;
+    let baseGrid = this.grid.reactDataGrid;
     expect(baseGrid.state.copied.idx).toEqual(cellIdx); // increment by 1 due to checckbox col
     expect(baseGrid.state.copied.rowIdx).toEqual(rowIdx);
     expect(ReactDOM.findDOMNode(this.cell.node).className.indexOf('copied') > -1).toBe(true);
@@ -229,8 +229,12 @@ export default class GridRunner {
     expect(this.handleCellDragSpy).toHaveBeenCalled();
     // Note - fake date is random, so need to test vs the assigned value as it WILL change (and bust the test)
     let expected = this.cell.props().value;
-    // chek our event returns the right data
-    expect(this.handleCellDragSpy.calls.first().args[0]).toEqual({cellKey: cellKey, fromRow: from, toRow: to, value: expected});
+    // check our event returns the right data
+    const args = this.handleCellDragSpy.calls.first().args[0];
+    expect(args.cellKey).toEqual(cellKey);
+    expect(args.fromRow).toEqual(from);
+    expect(args.toRow).toEqual(to);
+    expect(args.updated[args.cellKey]).toEqual(expected);
     for (let i = from, end = to; i <= end; i++) {
       const toCell = this.getCell({cellIdx: col - 1, rowIdx: i});
       // First the component

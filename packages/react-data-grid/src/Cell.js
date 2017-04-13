@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual';
+import _ from 'underscore';
 const React = require('react');
 const ReactDOM = require('react-dom');
 const joinClasses = require('classnames');
@@ -25,7 +25,6 @@ const Cell = React.createClass({
     selectedColumn: React.PropTypes.object,
     height: React.PropTypes.number,
     tabIndex: React.PropTypes.number,
-    ref: React.PropTypes.string,
     column: React.PropTypes.shape(ExcelColumn).isRequired,
     value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired,
     isExpanded: React.PropTypes.bool,
@@ -38,14 +37,16 @@ const Cell = React.createClass({
     forceUpdate: React.PropTypes.bool,
     expandableOptions: React.PropTypes.object.isRequired,
     isScrolling: React.PropTypes.bool.isRequired,
-    tooltip: React.PropTypes.string
+    tooltip: React.PropTypes.string,
+    isCellValueChanging: React.PropTypes.func
   },
 
   getDefaultProps() {
     return {
       tabIndex: -1,
       isExpanded: false,
-      value: ''
+      value: '',
+      isCellValueChanging: (value, nextValue) => value !== nextValue
     };
   },
 
@@ -61,7 +62,7 @@ const Cell = React.createClass({
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      isCellValueChanging: this.props.value !== nextProps.value
+      isCellValueChanging: this.props.isCellValueChanging(this.props.value, nextProps.value)
     });
   },
 
@@ -87,7 +88,7 @@ const Cell = React.createClass({
       || this.isCopyCellChanging(nextProps)
       || this.props.isRowSelected !== nextProps.isRowSelected
       || this.isSelected()
-      || this.props.value !== nextProps.value
+      || this.props.isCellValueChanging(this.props.value, nextProps.value)
       || this.props.forceUpdate === true
       || this.props.className !== nextProps.className
       || this.hasChangedDependentValues(nextProps);
@@ -250,7 +251,7 @@ const Cell = React.createClass({
       let nextColumn = nextProps.column;
       let nextRowMetaData = nextColumn.getRowMetaData(this.getRowData(nextProps), nextColumn);
 
-      hasChangedDependentValues = !isEqual(currentRowMetaData, nextRowMetaData);
+      hasChangedDependentValues = !_.isEqual(currentRowMetaData, nextRowMetaData);
     }
 
     return hasChangedDependentValues;

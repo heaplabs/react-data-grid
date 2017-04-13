@@ -54,6 +54,7 @@ const ReactDataGrid = React.createClass({
     showFilterRow: React.PropTypes.bool,
     rowHeight: React.PropTypes.number.isRequired,
     headerRowHeight: React.PropTypes.number,
+    headerFiltersHeight: React.PropTypes.number,
     minHeight: React.PropTypes.number.isRequired,
     minWidth: React.PropTypes.number,
     enableRowSelect: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.string]),
@@ -119,6 +120,7 @@ const ReactDataGrid = React.createClass({
       enableCellSelect: false,
       tabIndex: -1,
       rowHeight: 35,
+      headerFiltersHeight: 45,
       enableRowSelect: false,
       minHeight: 350,
       rowKey: 'id',
@@ -287,14 +289,17 @@ const ReactDataGrid = React.createClass({
     }
   },
 
-  onGridRowsUpdated(cellKey, fromRow, toRow, updated, action) {
+  onGridRowsUpdated(cellKey, fromRow, toRow, updated, action, originRow) {
     let rowIds = [];
 
     for (let i = fromRow; i <= toRow; i++) {
       rowIds.push(this.props.rowGetter(i)[this.props.rowKey]);
     }
 
-    this.props.onGridRowsUpdated({cellKey, fromRow, toRow, rowIds, updated, action});
+    let fromRowId = this.props.rowGetter(action === 'COPY_PASTE' ? originRow : fromRow)[this.props.rowKey];
+    let toRowId = this.props.rowGetter(toRow)[this.props.rowKey];
+
+    this.props.onGridRowsUpdated({cellKey, fromRow, toRow, fromRowId, toRowId, rowIds, updated, action});
   },
 
   onCellCommit(commit: RowUpdateEvent) {
@@ -428,7 +433,7 @@ const ReactDataGrid = React.createClass({
     }
 
     if (this.props.onGridRowsUpdated) {
-      this.onGridRowsUpdated(cellKey, toRow, toRow, {[cellKey]: textToCopy}, AppConstants.UpdateActions.COPY_PASTE);
+      this.onGridRowsUpdated(cellKey, toRow, toRow, {[cellKey]: textToCopy}, AppConstants.UpdateActions.COPY_PASTE, fromRow);
     }
   },
 
@@ -512,6 +517,10 @@ const ReactDataGrid = React.createClass({
   },
 
   handleNewRowSelect(rowIdx, rowData) {
+    if (this.selectAllCheckbox.checked === true) {
+      this.selectAllCheckbox.checked = false;
+    }
+
     let {keys, indexes, isSelectedKey} = this.props.rowSelection.selectBy;
     let isPreviouslySelected = RowUtils.isRowSelected(keys, indexes, isSelectedKey, rowData, rowIdx);
 
@@ -615,14 +624,14 @@ const ReactDataGrid = React.createClass({
     return offsetHeight;
   },
 
-  getHeaderRows(): Array<{ref: string; height: number;}> {
-    let rows = [{ ref: 'row', height: this.props.headerRowHeight || this.props.rowHeight, rowType: 'header' }];
+  getHeaderRows(): Array<{ref: Function; height: number;}> {
+    let rows = [{ ref: (node) => this.row = node, height: this.props.headerRowHeight || this.props.rowHeight, rowType: 'header' }];
     if (this.state.canFilter === true) {
       rows.push({
-        ref: 'filterRow',
+        ref: (node) => this.filterRow = node,
         filterable: true,
         onFilterChange: this.props.onAddFilter,
-        height: 45,
+        height: this.props.headerFiltersHeight,
         rowType: 'filter'
       });
     }
@@ -831,8 +840,8 @@ const ReactDataGrid = React.createClass({
       const selectAllCheckboxId = 'select-all-checkbox-' + this.props.dataGridName;
       
       let headerRenderer = props.enableRowSelect === 'single' ? null :
-      <div className="react-grid-checkbox-container">
-        <input className="react-grid-checkbox" type="checkbox" name={selectAllCheckboxId} id={selectAllCheckboxId} onChange={this.handleCheckboxChange} />
+      <div className="react-grid-checkbox-container checkbox-align">
+        <input className="react-grid-checkbox" type="checkbox" name={selectAllCheckboxId} id={selectAllCheckboxId} ref={grid => this.selectAllCheckbox = grid} onChange={this.handleCheckboxChange} />
         <label htmlFor={selectAllCheckboxId} className="react-grid-checkbox-label"></label>
       </div>;
       let Formatter = this.props.rowActionsCell ? this.props.rowActionsCell : CheckboxEditor;
@@ -893,8 +902,8 @@ const ReactDataGrid = React.createClass({
       onRowExpandToggle: this.onRowExpandToggle,
       onRowHover: this.onRowHover,
       getDataGridDOMNode: this.getDataGridDOMNode,
-      isScrollingVerticallyWithKeyboard: this.isKeyDown(40) || this.isKeyDown(38), // up or down
-      isScrollingHorizontallyWithKeyboard: this.isKeyDown(37) || this.isKeyDown(39) // left or right
+      isScrollingVerticallyWithKeyboard: this.isKeyDown(KeyCodes.DownArrow) || this.isKeyDown(KeyCodes.UpArrow),
+      isScrollingHorizontallyWithKeyboard: this.isKeyDown(KeyCodes.LeftArrow) || this.isKeyDown(KeyCodes.RightArrow) || this.isKeyDown(KeyCodes.Tab)
     };
 
     let toolbar = this.renderToolbar();
@@ -915,7 +924,7 @@ const ReactDataGrid = React.createClass({
         {toolbar}
         <div className="react-grid-Main">
           <BaseGrid
-            ref="base"
+            ref={(node) => this.base = node}
             {...this.props}
             rowKey={this.props.rowKey}
             headerRows={this.getHeaderRows()}

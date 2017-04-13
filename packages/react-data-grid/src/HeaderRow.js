@@ -40,7 +40,8 @@ const HeaderRow = React.createClass({
     resizing: PropTypes.object,
     onScroll: PropTypes.func,
     rowType: PropTypes.string,
-    draggableHeaderCell: PropTypes.func
+    draggableHeaderCell: PropTypes.func,
+    onHeaderDrop: PropTypes.func
   },
 
   mixins: [ColumnUtilsMixin],
@@ -55,6 +56,8 @@ const HeaderRow = React.createClass({
       || this.props.sortDirection !== nextProps.sortDirection
     );
   },
+
+  cells: [],
 
   getHeaderCellType(column) {
     if (column.filterable) {
@@ -112,7 +115,7 @@ const HeaderRow = React.createClass({
     let cells = [];
     let lockedCells = [];
     for (let i = 0, len = this.getSize(this.props.columns); i < len; i++) {
-      let column = this.getColumn(this.props.columns, i);
+      let column = Object.assign({ rowType: this.props.rowType }, this.getColumn(this.props.columns, i));
       let _renderer = this.getHeaderRenderer(column);
       if (column.key === 'select-row' && this.props.rowType === 'filter') {
         _renderer = <div></div>;
@@ -120,7 +123,7 @@ const HeaderRow = React.createClass({
       let HeaderCell = column.draggable ? this.props.draggableHeaderCell : BaseHeaderCell;
       let cell = (
         <HeaderCell
-          ref={i}
+          ref={(node) => this.cells[i] = node}
           key={i}
           height={this.props.height}
           column={column}
@@ -128,6 +131,7 @@ const HeaderRow = React.createClass({
           resizing={this.props.resizing === column}
           onResize={this.props.onColumnResize}
           onResizeEnd={this.props.onColumnResizeEnd}
+          onHeaderDrop={this.props.onHeaderDrop}
           />
       );
       if (column.locked) {
@@ -143,7 +147,7 @@ const HeaderRow = React.createClass({
   setScrollLeft(scrollLeft: number) {
     this.props.columns.forEach( (column, i) => {
       if (column.locked) {
-        this.refs[i].setScrollLeft(scrollLeft);
+        this.cells[i].setScrollLeft(scrollLeft);
       }
     });
   },
