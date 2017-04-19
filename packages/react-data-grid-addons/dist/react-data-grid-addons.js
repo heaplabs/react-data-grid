@@ -9685,6 +9685,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.props.columns.forEach(function (column, i) {
 	      if (column.locked) {
+
+	        // Added to Fork: https://github.com/adazzle/react-data-grid/issues/732
+	        if (!_this2.cells[i]) return; // Added this little check
+
+
 	        _this2.cells[i].setScrollLeft(scrollLeft);
 	      }
 	    });
