@@ -147,6 +147,12 @@ const HeaderRow = React.createClass({
   setScrollLeft(scrollLeft: number) {
     this.props.columns.forEach( (column, i) => {
       if (column.locked) {
+
+
+        // Added to Fork: https://github.com/adazzle/react-data-grid/issues/732
+        if (!this.cells[i]) return; // Added this little check
+
+
         this.cells[i].setScrollLeft(scrollLeft);
       }
     });
