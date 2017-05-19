@@ -9751,7 +9751,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      headerRows.push(React.createElement(HeaderRow, {
 	        key: row.ref,
 	        ref: function ref(node) {
-	          return _this.row = node;
+	          if (row.rowType === 'filter') {
+	            _this.filterRow = node;
+	          } else {
+	            _this.row = node;
+	          }
 	        },
 	        rowType: row.rowType,
 	        style: headerRowStyle,
@@ -9812,11 +9816,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	  },
 	  setScrollLeft: function setScrollLeft(scrollLeft) {
-	    var node = ReactDOM.findDOMNode(this.row);
-	    node.scrollLeft = scrollLeft;
-	    this.row.setScrollLeft(scrollLeft);
+	    if (this.row) {
+	      var node = ReactDOM.findDOMNode(this.row);
+	      node.scrollLeft = scrollLeft;
+	      this.row.setScrollLeft(scrollLeft);
+	    }
+
 	    if (this.filterRow) {
-	      var nodeFilters = this.filterRow;
+	      var nodeFilters = ReactDOM.findDOMNode(this.filterRow);
 	      nodeFilters.scrollLeft = scrollLeft;
 	      this.filterRow.setScrollLeft(scrollLeft);
 	    }
